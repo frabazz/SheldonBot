@@ -1,0 +1,43 @@
+{
+	"compilerOptions": {
+		"outDir": "dist",
+		"sourceMap": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"skipLibCheck": true,
+		"skipDefaultLibCheck": true,
+		"importHelpers": true,
+
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"exactOptionalPropertyTypes": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": false,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"strict": true,
+		"useUnknownInCatchVariables": true,
+		"noUncheckedIndexedAccess": true,
+
+		"declaration": true,
+		"declarationMap": true,
+		"inlineSources": true,
+		"newLine": "lf",
+		"noEmitHelpers": true,
+		"preserveConstEnums": true,
+		"removeComments": false,
+
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"lib": ["ESNext"],
+		"target": "ESNext",
+		"useDefineForClassFields": true
+	},
+	"include": ["src", "environment.d.ts"],
+	"exclude": ["node_modules"]
+}
