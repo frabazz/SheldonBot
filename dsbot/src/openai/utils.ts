@@ -14,9 +14,3 @@ async function isTokenValid(token: string) {
             .catch(() => resolve(false))
     )
 }
-
-async function main() {
-    console.log(await isTokenValid("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"))
-}
-
-main()
