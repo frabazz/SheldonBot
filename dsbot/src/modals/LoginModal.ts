@@ -8,7 +8,7 @@ export function LoginModal() {
     const PswInput = new TextInputBuilder()
         .setCustomId("psw")
         .setLabel("Password")
-        .setStyle(TextInputStyle.Paragraph)
+        .setStyle(TextInputStyle.Short)
 
     const firstActionRow = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(PswInput)
     modal.addComponents(firstActionRow);

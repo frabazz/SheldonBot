@@ -2,6 +2,8 @@ import { Client, Collection, Events, GatewayIntentBits, Partials } from 'discord
 import { commands } from './commands/exporter'
 import * as dotenv from 'dotenv'
 import mongoose from 'mongoose'
+import {encrypt} from './db/Encrypter'
+import {User} from './db/User'
 
 dotenv.config()
 const token = process.env.TOKEN
@@ -39,9 +41,25 @@ client.on(Events.InteractionCreate, async interaction => {
 		if(interaction.customId == "RegisterModal"){
 			const psw = interaction.fields.getTextInputValue("psw")
 			const key = interaction.fields.getTextInputValue("key")
-			console.log(psw, key)
-		}
-	}
+            let user
+            if(psw == "")
+                user = new User({
+                    userID : interaction.user.id,
+                    key : key,
+                    encrypted : false
+                })
+            else
+                user = new User({
+                    userID : interaction.user.id,
+                    key : encrypt(psw, key),
+                    encrypted : false,
+                    challenge : encrypt(psw, process.env.CHALLENGE || "")
+                })
+            user.save()
+                .then(() => interaction.reply("ok"))
+                .catch(() => interaction.reply("error"))
+        }
+    }
 });
 
 if (process.env.DB_CONNECTION != null) {
@@ -49,4 +67,3 @@ if (process.env.DB_CONNECTION != null) {
         .then(() => client.login(token))
         .catch(err => console.log(err))
 }
-client.login(token);

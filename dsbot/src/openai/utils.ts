@@ -14,3 +14,5 @@ async function isTokenValid(token: string) {
             .catch(() => resolve(false))
     )
 }
+
+isTokenValid("guua")
