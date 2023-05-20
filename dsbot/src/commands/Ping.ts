@@ -6,6 +6,6 @@ export const Ping : SlashCommand = {
         .setName('ping')
         .setDescription('replies with pong!'),
     async execute(interaction){
-        await   interaction.reply('Pong!')
+        await interaction.reply('Pong!')
     }
 }

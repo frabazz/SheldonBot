@@ -8,7 +8,7 @@ export interface UserInterface{
 
 const UserSchema = new moongose.Schema({
     userID : {
-        type : Number,
+        type : String,
         required : true,
         unique : true
     },
@@ -17,13 +17,9 @@ const UserSchema = new moongose.Schema({
         required : true,
         unique : true
     },
-    encrypted : {
-        type : Boolean,
-        required : true,
-    },
     challenge : {
         type : String,
-        required : false
+        required : true
     }
 })
 

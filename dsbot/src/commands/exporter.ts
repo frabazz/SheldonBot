@@ -1,9 +1,11 @@
 import {SlashCommand} from '../types'
-import {Bing} from './Bing'
+import {Answer} from './Answer'
 import {Init} from './Init'
 import {Ping} from './Ping'
+import {Reset} from './Reset'
 export const commands : SlashCommand[] = [
-  Bing,
+  Answer,
   Init,
   Ping,
+  Reset,
 ]
