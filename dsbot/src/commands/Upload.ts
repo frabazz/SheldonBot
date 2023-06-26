@@ -1,9 +1,9 @@
 import {SlashCommandBuilder} from 'discord.js'
 import { SlashCommand } from '../types'
 
-export const Ping : SlashCommand = {
+export const Upload : SlashCommand = {
     data : new SlashCommandBuilder()
-        .setName('ping')
+        .setName('upload')
         .setDescription('replies with pong!'),
     async execute(interaction){
         await interaction.reply('Pong!')
