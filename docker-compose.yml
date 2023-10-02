@@ -1,4 +1,6 @@
-version : "2.0"
+version : "2"
+include:
+  - "./cheshire/core/docker-compose.yml"
 services:
-    build:
-    ports:
+  mongodb:
+    image: mongo

@@ -1,0 +1,3 @@
+[submodule "cheshire/core"]
+	path = cheshire/core
+	url = https://github.com/cheshire-cat-ai/core
