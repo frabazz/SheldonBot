@@ -1,13 +1,14 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
 import { Client, Collection, Events, GatewayIntentBits, Partials } from 'discord.js'
 import { commands } from './commands/exporter'
-import * as dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import { decrypt, encrypt } from './db/Encrypter'
 import { User } from './db/User'
 import { queue } from './queue'
 import {WebSocket} from 'ws'
 
-dotenv.config()
+
 
 const ws_endpoint = "ws://localhost:1865/ws"
 const token = process.env.TOKEN
@@ -91,9 +92,12 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 });
 
-
 if (process.env.DB_CONNECTION != null) {
     mongoose.connect(process.env.DB_CONNECTION)
         .then(() => client.login(token))
         .catch(err => console.log(err))
+} else {
+    console.log("DB_CONNECTION not defined in .env")
+    // TODO: remove this line
+    client.login(token)
 }

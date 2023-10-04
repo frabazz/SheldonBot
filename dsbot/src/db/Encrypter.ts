@@ -1,9 +1,8 @@
 import crypto from 'crypto'
-import * as dotenv from 'dotenv'
 
-dotenv.config()
 const algorithm = 'aes-256-cbc'
 const secret_iv = process.env.SECRET_IV
+
 if (secret_iv == null)
     throw "secret_iv not defined in .env"
 
