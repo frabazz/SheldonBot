@@ -2,10 +2,15 @@ version: "3.7"
 include:
   - "./cheshire/core/docker-compose.yml"
 services:
-  mongodb:
+  db: 
     image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
   discordbot:
     build:
       context: "./dsbot/"
       dockerfile: Dockerfile
+    environment:
+      - MONGO_CONNECTION="mongodb://root:example@mongo:27017/"
 
