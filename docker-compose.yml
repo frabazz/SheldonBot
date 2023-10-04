@@ -1,6 +1,11 @@
-version: "2"
+version: "3.7"
 include:
   - "./cheshire/core/docker-compose.yml"
 services:
   mongodb:
     image: mongo
+  discordbot:
+    build:
+      context: "./dsbot/"
+      dockerfile: Dockerfile
+
