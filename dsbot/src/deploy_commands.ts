@@ -1,3 +1,5 @@
+import dotenv from 'dotenv'
+dotenv.config()
 import { REST, Routes, RESTPostAPIApplicationCommandsJSONBody } from 'discord.js'
 import { commands } from './commands/exporter'
 

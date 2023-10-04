@@ -5,5 +5,4 @@ COPY tsconfig.json ./
 RUN npm install
 RUN touch empty.ts
 COPY ./src/ ./src/
-RUN npm run compile
 CMD ["npm", "start"]
