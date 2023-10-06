@@ -2,8 +2,10 @@ version: "3.7"
 include:
   - "./cheshire/core/docker-compose.yml"
 services:
-  db: 
+  db:
     image: mongo
+    expose:
+      - "27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_USER}"
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASS}"
@@ -11,5 +13,12 @@ services:
     build:
       context: "./dsbot/"
       dockerfile: Dockerfile
+    depends_on:
+      - db
+      - cheshire-cat-core
+      - cheshire-cat-vector-memory
     env_file:
       - .env
+networks:
+  isolated_network:
+    external: true
