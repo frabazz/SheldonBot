@@ -27,8 +27,10 @@ export const Answer: SlashCommand = {
                 interaction.user.id,
                 question.toString(),
                 (err : string, answer : string) => {
-                    if(err)
+                    if(err){
                         interaction.editReply("there was en error processing your request")
+                        console.log(err)
+                    }
                     else
                         interaction.editReply(answer)
                 }

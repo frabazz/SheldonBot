@@ -2,11 +2,6 @@ import fetch from 'node-fetch'
 const ENDPOINT = "http://cheshire-cat-core"
 import { WebSocket } from 'ws'
 
-interface SettingsResponse {
-    status : string,
-    setting : object
-}
-
 interface WSresponse {
     error : boolean,
     content : string,
@@ -18,7 +13,7 @@ export default async function answerQuestion(key: string, question: string, ws :
         (resolve, reject) => {
             if(ws.readyState != ws.OPEN)
                 return reject("the socket isn't open")
-            fetch(`${ENDPOINT}/settings/llm/LLMOpenAIConfig`,
+            fetch(`${ENDPOINT}/llm/settings/LLMOpenAIConfig`,
                 {
                     method : "PUT",
                     headers: { 'Content-Type': 'application/json' },
@@ -32,11 +27,9 @@ export default async function answerQuestion(key: string, question: string, ws :
                 .then(async (res) => {
                     if(res.status != 200)
                         return reject("error in settings request")
-                    const json = (await res.json()) as SettingsResponse
-                    if(json.status != "success")
-                        return reject("error in settings")
                     ws.send(JSON.stringify({
-                        "text" : question
+                        "text" : question,
+                        "user_id" : "user"
                     }))
                     ws.on("message", (data) => {
                         const res : WSresponse = (JSON.parse(data.toString())) as WSresponse
