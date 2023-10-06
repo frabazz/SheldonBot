@@ -1,4 +1,5 @@
 import {} from 'discord.js'
+import {env} from './env_check'
 import answerQuestion from './cheshire/answerQuestion'
 import isTokenValid from './cheshire/isTokenValid'
 import {Client} from 'discord.js'
@@ -14,7 +15,7 @@ interface question{
     callback : Function
 }
 
-const POLL_TIME = 300
+const {POLL_TIME} = env
 
 export class queue{
     userQueue : user[]

@@ -5,12 +5,11 @@ services:
   db: 
     image: mongo
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_USER}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASS}"
   discordbot:
     build:
       context: "./dsbot/"
       dockerfile: Dockerfile
-    environment:
-      - MONGO_CONNECTION="mongodb://root:example@mongo:27017/"
-
+    env_file:
+      - .env

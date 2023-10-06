@@ -1,18 +1,16 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
+import { env } from './env_check'
 import { Client, Collection, Events, GatewayIntentBits, Partials } from 'discord.js'
 import { commands } from './commands/exporter'
 import mongoose from 'mongoose'
 import { decrypt, encrypt } from './db/Encrypter'
 import { User } from './db/User'
 import { queue } from './queue'
-import {WebSocket} from 'ws'
-
-
+import { WebSocket } from 'ws'
 
 const ws_endpoint = "ws://localhost:1865/ws"
-const token = process.env.TOKEN
-const challenge = process.env.CHALLENGE || ""
+const { CHALLENGE, TOKEN, DB_CONNECTION} = env
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.MessageContent], shards: "auto", partials: [Partials.Message, Partials.Channel, Partials.GuildMember, Partials.Reaction, Partials.GuildScheduledEvent, Partials.User, Partials.ThreadMember] });
 
 client.commands = new Collection();
@@ -23,7 +21,7 @@ for (const command of commands) {
 
 client.once(Events.ClientReady, () => {
     client.queue = new queue(client)
-    client.websocket =  new WebSocket(ws_endpoint)
+    client.websocket = new WebSocket(ws_endpoint)
     client.websocket.on("open", () => {
         console.log("socket opened")
     })
@@ -55,7 +53,7 @@ client.on(Events.InteractionCreate, async interaction => {
             const user = new User({
                 userID: interaction.user.id,
                 key: encrypt(psw, key),
-                challenge: encrypt(psw, challenge)
+                challenge: encrypt(psw, CHALLENGE)
             })
             user.save()
                 .then(() => {
@@ -71,20 +69,20 @@ client.on(Events.InteractionCreate, async interaction => {
             const psw = interaction.fields.getTextInputValue("psw")
             User.findOne({ userID: interaction.user.id })
                 .then((user) => {
-                    if(user && decrypt(psw, user.challenge) == challenge){
+                    if (user && decrypt(psw, user.challenge) == CHALLENGE) {
                         client.queue.addUser(
                             decrypt(psw, user.key),
                             user.userID
                         )
                         interaction.reply({
-                            ephemeral : true,
-                            content : "correctly logged in"
+                            ephemeral: true,
+                            content: "correctly logged in"
                         })
                     }
                     else {
                         interaction.reply({
-                            ephemeral : true,
-                            content : "wrong password!"
+                            ephemeral: true,
+                            content: "wrong password!"
                         })
                     }
                 })
@@ -92,12 +90,9 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 });
 
-if (process.env.DB_CONNECTION != null) {
-    mongoose.connect(process.env.DB_CONNECTION)
-        .then(() => client.login(token))
-        .catch(err => console.log(err))
-} else {
-    console.log("DB_CONNECTION not defined in .env")
-    // TODO: remove this line
-    client.login(token)
-}
+mongoose.connect(DB_CONNECTION)
+    .then(() => {
+        console.log("Connected to DB, logging into discord")
+        client.login(TOKEN)
+    })
+    .catch(err => console.log(err))

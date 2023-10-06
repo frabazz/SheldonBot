@@ -23,6 +23,8 @@
     "mongoose": "^7.1.1",
     "node-fetch": "^2.6.1",
     "superagent": "^8.0.9",
-    "typescript": "^5.0.4"
+    "tsx": "^3.13.0",
+    "typescript": "^5.0.4",
+    "zod": "^3.22.4"
   }
 }

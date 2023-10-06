@@ -1,3 +1,4 @@
 dsbot/dist/
 dsbot/node_modules/
 dsbot/.env
+.env

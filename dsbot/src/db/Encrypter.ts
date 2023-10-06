@@ -1,10 +1,8 @@
 import crypto from 'crypto'
+import {env} from '../env_check'
 
 const algorithm = 'aes-256-cbc'
-const secret_iv = process.env.SECRET_IV
-
-if (secret_iv == null)
-    throw "secret_iv not defined in .env"
+const {SECRET_IV} = env
 
 export function encrypt(password: string, token: string) {
     const key = crypto
@@ -14,7 +12,7 @@ export function encrypt(password: string, token: string) {
         .substring(0, 32)
     const encryptionIV = crypto
         .createHash('sha256')
-        .update(secret_iv || "")
+        .update(SECRET_IV)
         .digest('hex')
         .substring(0, 16)
     const cipher = crypto.createCipheriv(algorithm, key, encryptionIV)
@@ -32,7 +30,7 @@ export function decrypt(password: string, token: string) {
             .substring(0, 32)
         const encryptionIV = crypto
             .createHash('sha256')
-            .update(secret_iv || "")
+            .update(SECRET_IV)
             .digest('hex')
             .substring(0, 16)
         const buff = Buffer.from(token, 'base64')
