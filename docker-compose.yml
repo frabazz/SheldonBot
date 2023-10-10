@@ -19,6 +19,3 @@ services:
       - cheshire-cat-vector-memory
     env_file:
       - .env
-networks:
-  isolated_network:
-    external: true
