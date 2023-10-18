@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js'
 import { SlashCommand } from '../types'
 
-export const Answer: SlashCommand = {
+export default <SlashCommand>{
     data: new SlashCommandBuilder()
         .setName('answer')
         .setDescription('answers to question')
@@ -11,6 +11,7 @@ export const Answer: SlashCommand = {
                 .setDescription("the question to answer to")
                 .setRequired(true)
         ),
+        
     async execute(interaction) {
         const question = interaction.options.get("question")?.value
         if (!interaction.client.queue.isUserOnDb(
