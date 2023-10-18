@@ -11,13 +11,24 @@ import { decrypt, encrypt } from './db/Encrypter'
 import { User } from './db/User'
 import { queue } from './queue'
 import { WebSocket } from 'ws'
+import { readdirSync } from 'fs'
 const ws_endpoint = "ws://localhost:1865/ws"
 
-const { CHALLENGE, TOKEN, DB_CONNECTION} = env
+
+const { CHALLENGE, TOKEN, DB_CONNECTION } = env
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.MessageContent], shards: "auto", partials: [Partials.Message, Partials.Channel, Partials.GuildMember, Partials.Reaction, Partials.GuildScheduledEvent, Partials.User, Partials.ThreadMember] });
 
 client.commands = new Collection();
+const files = readdirSync(path.join(__dirname, 'commands')).filter(file =>
+    file.endsWith('.js')
+)
+
+for (const file of files) {
+    const command = require(path.join(__dirname, `commands/${file}`)).default
+    client.commands.set(command.data.name, command);
+}
+
 
 client.once(Events.ClientReady, () => {
     client.queue = new queue(client)
