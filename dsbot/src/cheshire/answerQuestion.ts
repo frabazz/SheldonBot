@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-const ENDPOINT = "http://cheshire-cat-core"
+const ENDPOINT = "http://localhost:1865"
 import { WebSocket } from 'ws'
 
 interface WSresponse {
