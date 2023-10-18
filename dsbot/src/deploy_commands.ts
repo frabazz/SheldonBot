@@ -1,36 +1,39 @@
 import dotenv from 'dotenv'
-import path from 'path'
-dotenv.config({path : path.join(__dirname, '../../.env')})
+dotenv.config()
+import { env } from './env_check'
 
-import {env} from './env_check'
+import { readdirSync } from 'fs'
+import path from 'path'
 
 import { REST, Routes, RESTPostAPIApplicationCommandsJSONBody } from 'discord.js'
-import { commands } from './commands/exporter'
 
-const {TOKEN, CLIENT_ID} = env
+const { TOKEN, CLIENT_ID, GUILD_ID} = env
 
-const commandJSONs: RESTPostAPIApplicationCommandsJSONBody[] =
-	commands.map(cmnd => cmnd.data.toJSON())
+const commands = []
+const files = readdirSync(path.join(__dirname, 'commands')).filter(file =>
+	file.endsWith('.js')
+)
+for (const file of files) {
+	const command = require(path.join(__dirname,`commands/${file}`))
+	delete command.execute
 
-interface pseudoData {
-	length: number
+	if ('data' in command && 'execute' in command) {
+		commands.push(command.data.toJSON());
+	}
 }
 
 const rest = new REST().setToken(TOKEN);
-
 (async () => {
 	try {
-		console.log(`Started refreshing ${commandJSONs.length} application (/) commands.`);
+		console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-		// The put method is used to fully refresh all commands in the guild with the current set
 		const data = (await rest.put(
-			Routes.applicationCommands(CLIENT_ID),
-			{ body: commandJSONs },
-		)) as pseudoData;
+			Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
+			{ body: commands },
+		)) as RESTPostAPIApplicationCommandsJSONBody[];
 
 		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
 	} catch (error) {
-		// And of course, make sure you catch and log any errors!
 		console.error(error);
 	}
 })();
