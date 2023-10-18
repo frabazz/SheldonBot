@@ -14,11 +14,11 @@ const files = readdirSync(path.join(__dirname, 'commands')).filter(file =>
 	file.endsWith('.js')
 )
 for (const file of files) {
-	const command = require(path.join(__dirname,`commands/${file}`))
-	delete command.execute
-
+	const command = require(path.join(__dirname,`commands/${file}`)).default
 	if ('data' in command && 'execute' in command) {
 		commands.push(command.data.toJSON());
+	} else {
+		console.log(`[WARNING] The command is missing a required "data" or "execute" property.`);
 	}
 }
 
