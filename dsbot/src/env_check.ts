@@ -6,6 +6,7 @@ const EnvSchema = z.object({
     CHALLENGE : z.string(),
     DB_CONNECTION : z.string(),
     CLIENT_ID : z.string(),
+    GUILD_ID: z.string(),
     SECRET_IV : z.string()
 })
 
