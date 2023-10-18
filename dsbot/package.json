@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "generateExport": "npx tsx src/generateExports.ts",
     "compile": "npx tsc",
-    "deployCommands": "node dist/deploy_commands.js",
+    "cWatch": "npx tsc -w",
+    "dCommands": "node dist/deploy_commands.js",
     "exec": "node dist/index.js",
-    "start": "npm run generateExport && npm run  compile && npm run deployCommands && npm run exec"
+    "start": "npm run compile && npm run dCommands && npm run exec",
+    "dev": "nodemon dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -26,5 +27,8 @@
     "tsx": "^3.13.0",
     "typescript": "^5.0.4",
     "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }
