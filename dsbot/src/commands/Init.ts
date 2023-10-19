@@ -4,7 +4,7 @@ import { RegisterModal } from '../modals/RegisterModal'
 import { LoginModal } from '../modals/LoginModal'
 import { User } from '../db/User'
 
-export const Init: SlashCommand = {
+export default <SlashCommand>{
     data: new SlashCommandBuilder()
         .setName('init')
         .setDescription('start session')
@@ -17,6 +17,7 @@ export const Init: SlashCommand = {
                         {name : "yes", value : "true"}
                     )
         ),
+        
     async execute(interaction) {
         User.findOne({ userID: interaction.user.id })
             .then(async (found) => {

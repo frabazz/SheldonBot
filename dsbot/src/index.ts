@@ -1,31 +1,48 @@
 import * as dotenv from 'dotenv'
 import path from 'path'
-dotenv.config({path : path.join(__dirname, '../../.env')})
+dotenv.config()
+
 import { env } from './env_check'
-import { Client, Collection, Events, GatewayIntentBits, Partials } from 'discord.js'
-import { commands } from './commands/exporter'
+
+import { Client, Collection, Events, GatewayIntentBits, MessageActivityType, Partials } from 'discord.js'
+
 import mongoose from 'mongoose'
 import { decrypt, encrypt } from './db/Encrypter'
 import { User } from './db/User'
 import { queue } from './queue'
 import { WebSocket } from 'ws'
-const ws_endpoint = "ws://cheshire_cat_core/ws"
-const { CHALLENGE, TOKEN, DB_CONNECTION} = env
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.MessageContent], shards: "auto", partials: [Partials.Message, Partials.Channel, Partials.GuildMember, Partials.Reaction, Partials.GuildScheduledEvent, Partials.User, Partials.ThreadMember] });
+import { readdirSync } from 'fs'
+import { Chat } from './db/Chat'
+const ws_endpoint = "ws://localhost:1865/ws"
+
+
+const { CHALLENGE, TOKEN, DB_CONNECTION } = env
+
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent],
+});
 
 client.commands = new Collection();
+const files = readdirSync(path.join(__dirname, 'commands')).filter(file =>
+    file.endsWith('.js')
+)
 
-for (const command of commands) {
-    client.commands.set(command.data.name, command)
+for (const file of files) {
+    const command = require(path.join(__dirname, `commands/${file}`)).default
+    client.commands.set(command.data.name, command);
 }
 
 client.once(Events.ClientReady, () => {
     client.queue = new queue(client)
     client.websocket = new WebSocket(ws_endpoint)
     client.websocket.on("open", () => {
-        console.log("socket opened")
+        console.log("CHESHIRE>\tSocket opened with the server")
     })
-    console.log('Ready!');
+    console.log('BOT> \t\tReady!');
 });
 
 client.on(Events.InteractionCreate, async interaction => {
@@ -66,7 +83,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 .catch(() => interaction.reply("error"))
         }
         else if (interaction.customId == "LoginModal") {
-            const psw = interaction.fields.getTextInputValue("psw")
+            const psw = interaction.fields.getTextInputValue("psw") || ''
             User.findOne({ userID: interaction.user.id })
                 .then((user) => {
                     if (user && decrypt(psw, user.challenge) == CHALLENGE) {
@@ -90,9 +107,38 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 });
 
+client.on('messageCreate', async message => {
+    if (message.author.id != client.user?.id) {
+        const chat = await Chat.findOne({ channelID: message.channel.id, userID: message.author.id })
+        if (!client.queue.isUserOnDb(message.author.id)) {
+            message.reply("You aren't registered! run /init")
+        }
+        if (chat) {
+            message.channel.sendTyping()
+            client.queue.addQuestion(
+                message.author.id,
+                message.content.toString(),
+                (err: string, answer: string) => {
+                    if (err) {
+                        console.log(err)
+                        message.reply({ content: 'There was an error with your request', allowedMentions: { repliedUser: true } })
+                        console.log(err)
+                    }
+                    else {
+                        console.log(answer)
+                        message.reply({ content: answer, allowedMentions: { repliedUser: false } })
+                    }
+
+                }
+            )
+        }
+    }
+})
+
+console.log('Trying to login...')
 mongoose.connect(DB_CONNECTION)
     .then(() => {
-        console.log("Connected to DB, logging into discord")
+        console.log(`BOT>DB \t\tConnected to DB, logging into discord as ${client.user?.username}`)
         client.login(TOKEN)
     })
     .catch(err => console.log(err))
