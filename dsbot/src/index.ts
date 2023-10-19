@@ -36,7 +36,6 @@ for (const file of files) {
     client.commands.set(command.data.name, command);
 }
 
-
 client.once(Events.ClientReady, () => {
     client.queue = new queue(client)
     client.websocket = new WebSocket(ws_endpoint)
@@ -111,11 +110,11 @@ client.on(Events.InteractionCreate, async interaction => {
 client.on('messageCreate', async message => {
     if (message.author.id != client.user?.id) {
         const chat = await Chat.findOne({ channelID: message.channel.id, userID: message.author.id })
-        message.channel.sendTyping()
         if (!client.queue.isUserOnDb(message.author.id)) {
             message.reply("You aren't registered! run /init")
         }
         if (chat) {
+            message.channel.sendTyping()
             client.queue.addQuestion(
                 message.author.id,
                 message.content.toString(),
@@ -139,7 +138,7 @@ client.on('messageCreate', async message => {
 console.log('Trying to login...')
 mongoose.connect(DB_CONNECTION)
     .then(() => {
-        console.log("BOT>DB \t\tConnected to DB, logging into discord")
+        console.log(`BOT>DB \t\tConnected to DB, logging into discord as ${client.user?.username}`)
         client.login(TOKEN)
     })
     .catch(err => console.log(err))

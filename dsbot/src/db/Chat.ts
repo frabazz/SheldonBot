@@ -10,17 +10,14 @@ const ChatSchema = new moongose.Schema({
     channelID : {
         type : String,
         required : true,
-        unique : true
     },
     userID : {
         type : String,
         required : true,
-        unique : true
     },
     guildID : {
         type : String,
         required : true,
-        unique : true
     }
 })
 
