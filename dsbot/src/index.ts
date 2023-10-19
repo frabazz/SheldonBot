@@ -4,7 +4,7 @@ dotenv.config()
 
 import { env } from './env_check'
 
-import { Client, Collection, Events, GatewayIntentBits, Partials } from 'discord.js'
+import { Client, Collection, Events, GatewayIntentBits, MessageActivityType, Partials } from 'discord.js'
 
 import mongoose from 'mongoose'
 import { decrypt, encrypt } from './db/Encrypter'
@@ -12,12 +12,19 @@ import { User } from './db/User'
 import { queue } from './queue'
 import { WebSocket } from 'ws'
 import { readdirSync } from 'fs'
+import { Chat } from './db/Chat'
 const ws_endpoint = "ws://localhost:1865/ws"
 
 
 const { CHALLENGE, TOKEN, DB_CONNECTION } = env
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.MessageContent], shards: "auto", partials: [Partials.Message, Partials.Channel, Partials.GuildMember, Partials.Reaction, Partials.GuildScheduledEvent, Partials.User, Partials.ThreadMember] });
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent],
+});
 
 client.commands = new Collection();
 const files = readdirSync(path.join(__dirname, 'commands')).filter(file =>
@@ -100,6 +107,34 @@ client.on(Events.InteractionCreate, async interaction => {
         }
     }
 });
+
+client.on('messageCreate', async message => {
+    if (message.author.id != client.user?.id) {
+        const chat = await Chat.findOne({ channelID: message.channel.id, userID: message.author.id })
+        message.channel.sendTyping()
+        if (!client.queue.isUserOnDb(message.author.id)) {
+            message.reply("You aren't registered! run /init")
+        }
+        if (chat) {
+            client.queue.addQuestion(
+                message.author.id,
+                message.content.toString(),
+                (err: string, answer: string) => {
+                    if (err) {
+                        console.log(err)
+                        message.reply({ content: 'There was an error with your request', allowedMentions: { repliedUser: true } })
+                        console.log(err)
+                    }
+                    else {
+                        console.log(answer)
+                        message.reply({ content: answer, allowedMentions: { repliedUser: false } })
+                    }
+
+                }
+            )
+        }
+    }
+})
 
 console.log('Trying to login...')
 mongoose.connect(DB_CONNECTION)
